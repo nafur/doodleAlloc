@@ -1,9 +1,11 @@
+# use pulp to calculate the allocation via an LP
 from pulp import *
 
-def expr(s, vars):
-	return fd.make_expression( vars, s % vars )
+#def expr(s, vars):
+#	return fd.make_expression( vars, s % vars )
 
 def var(p, t):
+	"""Return the variable associated with this person and task."""
 	v = "x_" + str(p) + "_" + str(t)
 	if not v in var.vars:
 		var.vars[v] = LpVariable(v, cat = "Binary")
@@ -12,13 +14,17 @@ def var(p, t):
 var.vars = {}
 var.info = {}
 
-def assign(persons, tasks):
+def allocate(persons, tasks):
+	"""Calculate an allocation of tasks to persons."""
 	prob = LpProblem()
 	
+	# list of person and task ids
 	pids = range(len(persons))
 	tids = range(len(tasks))
+	# objective
 	obj = LpAffineExpression()
 	
+	# Make sure each person gets exactly one task.
 	for p in pids:
 		constraint = 0
 		for t in tids:
@@ -35,6 +41,7 @@ def assign(persons, tasks):
 				obj += 2*var(p,t)
 		prob += constraint == 1
 	
+	# Make sure each task is done at most once.
 	for t in tids:
 		constraint = 0
 		for p in pids:
@@ -42,6 +49,7 @@ def assign(persons, tasks):
 				constraint += var(p,t)
 		prob += constraint <= 1
 	
+	# Add objective.
 	prob += obj
 	status = prob.solve(GLPK(msg = False))
 	enabled = []

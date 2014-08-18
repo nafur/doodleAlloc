@@ -2,8 +2,7 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 import loader
-import assignment	
-
+import allocation
 
 @app.route('/', methods=['GET','POST'])
 def index():
@@ -16,7 +15,7 @@ def index():
 		options["status"].extend(data["status"])
 
 		if "persons" in data:
-			solution = assignment.assign(data["persons"], data["tasks"])
+			solution = allocation.allocate(data["persons"], data["tasks"])
 			if solution[0] == 1:
 				options["status"].append("Computed an assignment.")
 			else:
