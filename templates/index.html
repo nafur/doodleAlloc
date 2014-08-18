@@ -1,0 +1,73 @@
+{% extends "master.html" %}
+{% block body %}
+
+<form method="post" class="form-inline">
+	<input type="text" class="form-control" name="url" placeholder="Doodle URL" value="{{ url }}" style="width: 450px;" />
+	<button type="submit" class="btn btn-default">Load</button>
+</form>
+
+{% if status %}
+<h2>Status</h2>
+<ul>
+{% for s in status %}
+<li>{{ s|safe }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if solution %}
+<h2>Assignment</h2>
+<ul>
+{% for a in solution.1 %}
+	<li>{{ a.0 }}: {{ a.1 }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+
+{% if data %}
+<style>
+td { text-align: center; }
+.chosen { background-color: #acf090; color: green; }
+.error { background-color: #f27979; color: red; }
+.success { color: green; }
+.warning { color: orange; }
+.danger { color: red; }
+</style>
+<h2>Data</h2>
+<table class="table table-bordered table-condensed table-hover">
+	<thead>
+		<tr>
+			<th></th>
+	{% for t in data.tasks %}
+			<th style="text-align: center;" title="{{ t }}">{{ loop.index }}</th>
+	{% endfor %}
+		</tr>
+	</thead>
+	<tbody>
+	{% for p in data.persons %}
+		<tr>
+			<th>{{ p.0 }}</th>
+		{% for c in p.1 %}
+			{% if solution.2(p.0, data.tasks[loop.index0]) %}
+				{% if c == "n" %}
+			<td class="error" title="Error: Was assigned but not available."><span class="glyphicon glyphicon-flash"></span></td>
+				{% else %}
+			<td class="chosen"><span class="glyphicon glyphicon-ok"></span></td>
+				{% endif %}
+			{% elif c == "y" %}
+			<td class="success"><span class="glyphicon glyphicon-plus"></span></td>
+			{% elif c == "m" %}
+			<td class="warning"><span class="glyphicon glyphicon-asterisk"></span></td>
+			{% else %}
+			<td class="danger"><span class="glyphicon glyphicon-minus"></span></td>
+			{% endif %}
+		{% endfor %}
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+
+{% endblock %}
