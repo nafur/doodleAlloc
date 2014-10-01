@@ -26,7 +26,7 @@ def load_doodle(url):
 		return {
 			"status": ["Loaded json data from <a href=\"" + url + "\">" + url + "</a>"],
 			"tasks": j["optionsText"],
-			"persons": map(lambda p: (p["name"], p["preferences"]), j["participants"])
+			"persons": map(lambda p: (p["name"], p["preferences"].replace("i","m")), j["participants"])
 		}
 	
 	return load_data(url, analyzer)
