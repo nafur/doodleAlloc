@@ -14,6 +14,11 @@ def var(p, t):
 var.vars = {}
 var.info = {}
 
+def rate(s):
+	if s == 'y': return 1
+	if s == 'm': return 0.5
+	return 0
+
 def allocate(persons, tasks):
 	"""Calculate an allocation of tasks to persons."""
 	prob = LpProblem()

@@ -22,6 +22,7 @@ def index():
 				options["status"].append("Could not compute an assignment.")
 			options["data"] = data
 			options["solution"] = solution
+			options["totals"] = map(sum, zip(*map(lambda x: map(allocation.rate, list(x[1])), data["persons"])))
 
 	return render_template('index.html', **options)
 

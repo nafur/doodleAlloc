@@ -66,6 +66,14 @@ td { text-align: center; }
 		</tr>
 	{% endfor %}
 	</tbody>
+	<tfoot>
+		<tr>
+			<th>total</th>
+		{% for t in totals %}
+			<th>{{ t }}</th>
+		{% endfor %}
+		</tr>
+	</tfoot>
 </table>
 {% endif %}
 
