@@ -14,14 +14,15 @@ def load_data(url, analyzer):
 
 # load from doodle.com
 def load_doodle(url):
-	dataRE = re.compile("doodleJS.data.poll = ([^\n]*);")
+	#dataRE = re.compile("doodleJS.data.poll = ([^\n]*);")
+	dataRE = re.compile("doodleJS.data, ([^\n]*)\);")
 	
 	def analyzer(html):
 		m = dataRE.search(html)
 		if m == None:
-			return { "status": "No json data was found in HTML source." }
+			return { "status": ["No json data was found in HTML source."] }
 	
-		j = json.loads(m.group(1))
+		j = json.loads(m.group(1))["poll"]
 	
 		return {
 			"status": ["Loaded json data from <a href=\"" + url + "\">" + url + "</a>"],
@@ -76,7 +77,7 @@ def load_dfn(url):
 	return load_data(url, analyzer)	
 
 urls = {
-	"doodle.com": (re.compile("http://doodle.com/[a-z0-9]+(/admin)?"), load_doodle),
+	"doodle.com": (re.compile("http://doodle.com/poll/[a-z0-9]+(/admin)?"), load_doodle),
 	"dfn.de": (re.compile("https://terminplaner2.dfn.de/foodle/[a-zA-Z0-9\-]+"), load_dfn),
 }
 
