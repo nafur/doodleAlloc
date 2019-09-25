@@ -1,5 +1,5 @@
 
-import urllib
+import urllib.request as urllib
 import re
 import json
 import bs4
@@ -50,7 +50,7 @@ def load_new_doodle(url):
 	return load_data(url, analyzer)	
 
 # load from terminplaner2.dfn.de
-def load_dfn(url):
+def load_dfnv2(url):
 	def loadTasks(thead):
 		tr = thead.tr
 		if "rowspan" in tr.th.attrs and tr.th["rowspan"] == "2":
@@ -93,9 +93,45 @@ def load_dfn(url):
 		
 	return load_data(url, analyzer)	
 
+# load from terminplaner4.dfn.de
+def load_dfnv4(url):
+	def loadTasks(thead):
+		return list(map(lambda x: x.string, thead.tr.find_all("th")[1:-1]))
+
+	def loadPersons(tbody):
+		persons = []
+		prefmap = {"bg-success": "y", "bg-warning": "m", "bg-danger": "n"}
+		for p in tbody.find_all("tr"):
+			if not p.find("th"): continue
+			name = next(p.find("th").strings).strip()
+			tds = p.find_all("td")
+			pref = ""
+			for t in tds:
+				if t['class'][0] in prefmap:
+					pref += prefmap[t['class'][0]]
+			persons.append( (name, pref) )
+		return persons
+
+	def analyzer(html):
+		s = bs4.BeautifulSoup(html)
+		try:
+			tbl = s.find(id="tableContainer").form.table
+			res = {
+				"status": ["Parsed HTML from <a href=\"" + url + "\">" + url + "</a>"],
+				"tasks": loadTasks(tbl.thead),
+				"persons": loadPersons(tbl.tbody)
+			}
+			print(res)
+			return res
+		except KeyboardInterrupt:
+			return { "status": ["An error occurred while parsing HTML from <a href=\"" + url + "\">" + url + "</a>. Chances are, that the URL is wrong."] }
+		
+	return load_data(url, analyzer)	
+
 urls = {
 	"doodle.com": (re.compile("https://doodle.com/poll/[a-z0-9]+(/admin)?"), load_new_doodle),
-	"dfn.de": (re.compile("https://terminplaner2.dfn.de/foodle/[a-zA-Z0-9\-]+"), load_dfn),
+	"dfn.de v2": (re.compile("https://terminplaner2.dfn.de/foodle/[a-zA-Z0-9\-]+"), load_dfnv2),
+	"dfn.de v4": (re.compile("https://terminplaner4.dfn.de/[a-zA-Z0-9\-]+"), load_dfnv4),
 }
 
 def load_auto(url):
